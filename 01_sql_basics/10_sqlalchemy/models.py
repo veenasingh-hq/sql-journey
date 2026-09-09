@@ -1,4 +1,6 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy.orm import relationship
+
 from database import Base
 
 
@@ -12,4 +14,26 @@ class Patient(Base):
 
     age = Column(Integer)
 
-    phone = Column(String, unique=True)
+    appointments = relationship(
+        "Appointment",
+        back_populates="patient"
+    )
+
+
+class Appointment(Base):
+
+    __tablename__ = "appointments"
+
+    id = Column(Integer, primary_key=True, index=True)
+
+    appointment_date = Column(String, nullable=False)
+
+    patient_id = Column(
+        Integer,
+        ForeignKey("patients.id")
+    )
+
+    patient = relationship(
+        "Patient",
+        back_populates="appointments"
+    )

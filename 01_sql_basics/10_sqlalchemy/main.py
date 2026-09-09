@@ -1,100 +1,63 @@
 from database import engine, Base, SessionLocal
-from models import Patient
+from models import Patient, Appointment
 
 
-# Create tables
 Base.metadata.create_all(bind=engine)
 
-
-# Create session
 db = SessionLocal()
 
 
-# -------------------------
-# CREATE
-# -------------------------
-
+# Create patient
 patient = Patient(
     name="Rahul",
-    age=25,
-    phone="9876543210"
+    age=25
 )
 
 db.add(patient)
 db.commit()
 db.refresh(patient)
 
-print("Created:")
-print(patient.id, patient.name)
+
+# Create appointments
+appointment1 = Appointment(
+    appointment_date="2026-09-10",
+    patient=patient
+)
+
+appointment2 = Appointment(
+    appointment_date="2026-09-15",
+    patient=patient
+)
+
+db.add_all([
+    appointment1,
+    appointment2
+])
+
+db.commit()
 
 
-# -------------------------
-# READ
-# -------------------------
+# Patient → Appointments
 
-patients = db.query(Patient).all()
+print("Patient:", patient.name)
 
-print("\nAll Patients:")
-
-for patient in patients:
+for appointment in patient.appointments:
     print(
-        patient.id,
-        patient.name,
-        patient.age,
-        patient.phone
+        appointment.id,
+        appointment.appointment_date
     )
 
 
-# -------------------------
-# FILTER
-# -------------------------
+# Appointment → Patient
 
-patients = (
-    db.query(Patient)
-    .filter(Patient.age > 20)
-    .all()
+print("\nAppointment Patient:")
+
+appointment = db.query(Appointment).first()
+
+print(
+    appointment.appointment_date,
+    appointment.patient.name
 )
 
-print("\nPatients older than 20:")
 
-for patient in patients:
-    print(patient.name)
-
-
-# -------------------------
-# UPDATE
-# -------------------------
-
-patient = (
-    db.query(Patient)
-    .filter(Patient.name == "Rahul")
-    .first()
-)
-
-if patient:
-    patient.age = 26
-    db.commit()
-
-    print("\nUpdated:")
-    print(patient.name, patient.age)
-
-
-# -------------------------
-# DELETE
-# -------------------------
-
-patient = (
-    db.query(Patient)
-    .filter(Patient.name == "Rahul")
-    .first()
-)
-
-if patient:
-    db.delete(patient)
-    db.commit()
-
-    print("\nPatient deleted")
-
-
-# Close session
 db.close()
