@@ -8,7 +8,6 @@ def create_patient(
     db: Session,
     patient_data: PatientCreate
 ):
-
     patient = Patient(
         name=patient_data.name,
         age=patient_data.age,
@@ -23,7 +22,6 @@ def create_patient(
 
 
 def get_patients(db: Session):
-
     return db.query(Patient).all()
 
 
@@ -31,7 +29,6 @@ def get_patient(
     db: Session,
     patient_id: int
 ):
-
     return (
         db.query(Patient)
         .filter(Patient.id == patient_id)
@@ -44,7 +41,6 @@ def update_patient(
     patient_id: int,
     patient_data: PatientCreate
 ):
-
     patient = get_patient(db, patient_id)
 
     if not patient:
@@ -64,7 +60,6 @@ def delete_patient(
     db: Session,
     patient_id: int
 ):
-
     patient = get_patient(db, patient_id)
 
     if not patient:

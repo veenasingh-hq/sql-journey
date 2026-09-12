@@ -1,37 +1,26 @@
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import Depends, FastAPI, HTTPException
 from sqlalchemy.orm import Session
 
-from database import engine, Base, SessionLocal
+from database import Base, SessionLocal, engine
 from schemas import PatientCreate, PatientResponse
 import crud
 
 
 Base.metadata.create_all(bind=engine)
 
-
 app = FastAPI(
-    title="Patient API"
+    title="Patient API - PostgreSQL"
 )
 
 
-# -------------------------
-# Database Dependency
-# -------------------------
-
 def get_db():
-
     db = SessionLocal()
 
     try:
         yield db
-
     finally:
         db.close()
 
-
-# -------------------------
-# CREATE
-# -------------------------
 
 @app.post(
     "/patients",
@@ -41,16 +30,8 @@ def create_patient(
     patient: PatientCreate,
     db: Session = Depends(get_db)
 ):
+    return crud.create_patient(db, patient)
 
-    return crud.create_patient(
-        db,
-        patient
-    )
-
-
-# -------------------------
-# GET ALL
-# -------------------------
 
 @app.get(
     "/patients",
@@ -59,13 +40,8 @@ def create_patient(
 def read_patients(
     db: Session = Depends(get_db)
 ):
-
     return crud.get_patients(db)
 
-
-# -------------------------
-# GET ONE
-# -------------------------
 
 @app.get(
     "/patients/{patient_id}",
@@ -75,14 +51,12 @@ def read_patient(
     patient_id: int,
     db: Session = Depends(get_db)
 ):
-
     patient = crud.get_patient(
         db,
         patient_id
     )
 
     if not patient:
-
         raise HTTPException(
             status_code=404,
             detail="Patient not found"
@@ -90,10 +64,6 @@ def read_patient(
 
     return patient
 
-
-# -------------------------
-# UPDATE
-# -------------------------
 
 @app.put(
     "/patients/{patient_id}",
@@ -104,7 +74,6 @@ def update_patient(
     patient_data: PatientCreate,
     db: Session = Depends(get_db)
 ):
-
     patient = crud.update_patient(
         db,
         patient_id,
@@ -112,7 +81,6 @@ def update_patient(
     )
 
     if not patient:
-
         raise HTTPException(
             status_code=404,
             detail="Patient not found"
@@ -121,23 +89,17 @@ def update_patient(
     return patient
 
 
-# -------------------------
-# DELETE
-# -------------------------
-
 @app.delete("/patients/{patient_id}")
 def delete_patient(
     patient_id: int,
     db: Session = Depends(get_db)
 ):
-
     patient = crud.delete_patient(
         db,
         patient_id
     )
 
     if not patient:
-
         raise HTTPException(
             status_code=404,
             detail="Patient not found"
